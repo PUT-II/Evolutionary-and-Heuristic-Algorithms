@@ -2,8 +2,8 @@ from typing import List, Set
 
 from tsplib95.models import StandardProblem
 
-from proj1.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
-from proj1.ProblemSolver import ProblemSolver
+from proj1.classes.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
+from proj1.classes.ProblemSolver import ProblemSolver
 
 
 def _draw_graph(problem: StandardProblem, path: List[int], file_name: str) -> None:
@@ -30,6 +30,13 @@ def solve_problem(problem: StandardProblem,
                   problem_solver: ProblemSolver,
                   file_name: str = "graph",
                   start_node: int = 1):
+    """ Uses given ProblemSolver to determine a path for given problem.
+
+    :param problem: problem which contains graph nodes
+    :param problem_solver: specific implementation of ProblemSolver
+    :param file_name: name of file to which result graph will be saved
+    :param start_node: index of path start node
+    """
     import time
     import os
 
@@ -44,29 +51,38 @@ def solve_problem(problem: StandardProblem,
 
 
 def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, file_name: str = "graph"):
+    """ Solves problem using 50 different randomly selected start nodes.
+
+    :param problem: problem which contains graph nodes
+    :param problem_solver: specific implementation of ProblemSolver
+    :param file_name: name of file to which result graph will be saved
+    """
     import random
 
-    used_nodes: Set[int] = set()
+    random_nodes: Set[int] = set()
 
-    while len(used_nodes) < 50:
+    if problem.dimension < 50:
+        raise ValueError("problem.dimension < 50")
+
+    while len(random_nodes) < 50:
         random_node = random.randint(1, problem.dimension)
 
-        if random_node in used_nodes:
-            continue
+        if random_node not in random_nodes:
+            random_nodes.add(random_node)
 
-        solve_problem(problem, problem_solver, f"{file_name}_{random_node}", random_node)
-        used_nodes.add(random_node)
+    for node_index in random_nodes:
+        solve_problem(problem, problem_solver, f"{file_name}_{node_index}", node_index)
 
 
-def _main():
+def main():
     import tsplib95
 
-    problem_a: StandardProblem = tsplib95.load('./proj1/kroa100.tsp')
-    problem_b: StandardProblem = tsplib95.load('./proj1/krob100.tsp')
+    problem_a: StandardProblem = tsplib95.load('./data/kroa100.tsp')
+    problem_b: StandardProblem = tsplib95.load('./data/krob100.tsp')
 
     run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
     run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
 
 
 if __name__ == '__main__':
-    _main()
+    main()
