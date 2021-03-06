@@ -1,5 +1,6 @@
 from typing import List, Set
 
+import numpy as np
 from tsplib95.models import StandardProblem
 
 from proj1.classes.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
@@ -41,13 +42,14 @@ def solve_problem(problem: StandardProblem,
     import os
 
     time_start = time.time()
-    path = problem_solver.solve(problem, start_node)
+    distance_matrix: np.ndarray = ProblemSolver.create_distance_matrix(problem)
+    path = problem_solver.solve(distance_matrix, start_node - 1)
     print(f"{file_name} time : {round(time.time() - time_start, 4)}s")
 
     if not os.path.exists('./graphs/'):
         os.makedirs('./graphs/')
 
-    _draw_graph(problem, path, f'./graphs/{file_name}.pdf')
+    _draw_graph(problem, [index + 1 for index in path], f'./graphs/{file_name}.pdf')
 
 
 def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, file_name: str = "graph"):
@@ -65,7 +67,7 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, file
         raise ValueError("problem.dimension < 50")
 
     while len(random_nodes) < 50:
-        random_node = random.randint(1, problem.dimension)
+        random_node = random.randint(0, problem.dimension)
 
         if random_node not in random_nodes:
             random_nodes.add(random_node)
