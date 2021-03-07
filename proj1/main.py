@@ -3,11 +3,43 @@ from typing import List, Set
 import numpy as np
 from tsplib95.models import StandardProblem
 
-from proj1.classes.GreedyCycleProblemSolver import GreedyCycleProblemSolver
-from proj1.classes.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
-from proj1.classes.ProblemSolver import ProblemSolver
+from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, NearestNeighbourProblemSolver
 
 _EXPERIMENT_COUNT: int = 50
+
+
+def _calculate_distance(point_1: List[int], point_2: List[int]) -> int:
+    """ Calculates distance between given points.
+
+    :param point_1: point coordinates (x, y)
+    :param point_2: point coordinates (x, y)
+    :return: distance between given points
+    """
+    pow_x: int = (point_1[0] - point_2[0]) ** 2
+    pow_y: int = (point_1[1] - point_2[1]) ** 2
+
+    return round((pow_x + pow_y) ** 0.5)
+
+
+def _create_distance_matrix(problem: StandardProblem) -> np.ndarray:
+    """ Creates distance matrix for given graph.
+
+    :param problem: problem which contains graph nodes
+    :return: distance matrix
+    """
+    matrix = np.full(shape=(problem.dimension, problem.dimension), dtype=np.uint32, fill_value=-1)
+
+    node_dict = dict(problem.node_coords)
+
+    for node_index_1 in range(problem.dimension - 1):
+        node_1 = node_dict[node_index_1 + 1]
+        for node_index_2 in range(node_index_1 + 1, problem.dimension):
+            node_2 = node_dict[node_index_2 + 1]
+            distance = _calculate_distance(node_1, node_2)
+            matrix[node_index_1, node_index_2] = distance
+            matrix[node_index_2, node_index_1] = distance
+
+    return matrix
 
 
 def _draw_graph(problem: StandardProblem, path: List[int], result_title: str, path_length: int):
@@ -72,21 +104,27 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
         if random_node not in random_nodes:
             random_nodes.add(random_node)
 
-    distance_matrix: np.ndarray = ProblemSolver.create_distance_matrix(problem)
+    distance_matrix: np.ndarray = _create_distance_matrix(problem)
     paths = []
     for node_index in random_nodes:
         path = problem_solver.solve(distance_matrix, node_index - 1)
         paths.append(path)
 
     path_lengths = [_calculate_path_length(distance_matrix, path) for path in paths]
-    shortest_length, shortest_path_index = min((val, idx) for (idx, val) in enumerate(path_lengths))
+
+    minimum_length, shortest_path_index = min((val, idx) for (idx, val) in enumerate(path_lengths))
+    maximum_length = max(path_lengths)
+    average_length = round(sum(path_lengths) / len(path_lengths))
 
     shortest_path = [index + 1 for index in paths[shortest_path_index]]
 
     result_title = f"{result_title}_{shortest_path[0]}"
-    _draw_graph(problem, shortest_path, result_title, shortest_length)
+    _draw_graph(problem, shortest_path, result_title, minimum_length)
+
     print(result_title)
-    print(f"Path length : {shortest_length}")
+    print(f"Path length (min) : {minimum_length}")
+    print(f"Path length (max) : {maximum_length}")
+    print(f"Path length (avg) : {average_length}")
     print()
 
 
@@ -98,7 +136,7 @@ def main():
 
     run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
     run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
-    run_experiment(problem_a, GreedyCycleProblemSolver(), "krob100_gc")
+    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
     run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
 
 
