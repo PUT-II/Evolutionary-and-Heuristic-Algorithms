@@ -7,11 +7,11 @@ from proj1.classes.ProblemSolver import ProblemSolver
 
 class NearestNeighbourProblemSolver(ProblemSolver):
     def solve(self, distance_matrix: np.ndarray, start_node: int = 0) -> List[int]:
-        distance_matrix_ = distance_matrix.copy()
-
-        shape = distance_matrix_.shape
+        shape = distance_matrix.shape
         if len(shape) != 2 or shape[0] != shape[1]:
             raise ValueError('Wrong distance matrix shape: len(shape) != 2 or shape[0] != shape[1]')
+
+        distance_matrix_ = distance_matrix.copy()
 
         current_node_index = start_node
 
