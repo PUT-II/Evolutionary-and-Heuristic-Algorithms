@@ -3,17 +3,19 @@ from typing import List, Set
 import numpy as np
 from tsplib95.models import StandardProblem
 
-from proj1.classes.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
 from proj1.classes.GreedyCycleProblemSolver import GreedyCycleProblemSolver
+from proj1.classes.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
 from proj1.classes.ProblemSolver import ProblemSolver
 
 _EXPERIMENT_COUNT: int = 50
 
 
-def _draw_graph(problem: StandardProblem, path: List[int], file_name: str, start_node: int = -1) -> None:
+def _draw_graph(problem: StandardProblem, path: List[int], result_title: str, path_length: int):
+    import os
     import matplotlib.pyplot as plt
     import networkx as nx
 
+    start_node = path[0]
     graph = nx.Graph()
 
     node_coords_dict = dict(problem.node_coords)
@@ -30,41 +32,31 @@ def _draw_graph(problem: StandardProblem, path: List[int], file_name: str, start
     nx.draw_networkx_edges(graph, pos, edge_color='red')
     nx.draw_networkx_nodes(graph, pos, node_size=1, node_color=node_colors)
     nx.draw_networkx_labels(graph, pos, font_size=5)
-    plt.savefig(file_name)
-    plt.clf()
-
-
-def solve_problem(problem: StandardProblem,
-                  problem_solver: ProblemSolver,
-                  file_name: str = "graph",
-                  start_node: int = 1):
-    """ Uses given ProblemSolver to determine a path for given problem.
-
-    :param problem: problem which contains graph nodes
-    :param problem_solver: specific implementation of ProblemSolver
-    :param file_name: name of file to which result graph will be saved
-    :param start_node: index of path start node
-    """
-    import time
-    import os
-
-    time_start = time.time()
-    distance_matrix: np.ndarray = ProblemSolver.create_distance_matrix(problem)
-    path = problem_solver.solve(distance_matrix, start_node - 1)
-    print(f"{file_name} time : {round(time.time() - time_start, 4)}s")
 
     if not os.path.exists('./graphs/'):
         os.makedirs('./graphs/')
 
-    _draw_graph(problem, [index + 1 for index in path], f'./graphs/{file_name}.pdf', start_node)
+    plt.suptitle(result_title)
+    plt.title(f"Length : {path_length}")
+    plt.savefig(f"./graphs/{result_title}.pdf")
+    plt.show()
+    plt.clf()
 
 
-def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, file_name: str = "graph"):
+def _calculate_path_length(distance_matrix: np.ndarray, path: list) -> int:
+    total_length = 0
+    for i in range(len(path) - 1):
+        total_length += distance_matrix[path[i], path[i + 1]]
+
+    return total_length
+
+
+def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, result_title: str = "graph"):
     """ Solves problem using 50 different randomly selected start nodes.
 
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
-    :param file_name: name of file to which result graph will be saved
+    :param result_title: title which will be given to result image
     """
     import random
     global _EXPERIMENT_COUNT
@@ -80,8 +72,22 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, file
         if random_node not in random_nodes:
             random_nodes.add(random_node)
 
+    distance_matrix: np.ndarray = ProblemSolver.create_distance_matrix(problem)
+    paths = []
     for node_index in random_nodes:
-        solve_problem(problem, problem_solver, f"{file_name}_{node_index}", node_index)
+        path = problem_solver.solve(distance_matrix, node_index - 1)
+        paths.append(path)
+
+    path_lengths = [_calculate_path_length(distance_matrix, path) for path in paths]
+    shortest_length, shortest_path_index = min((val, idx) for (idx, val) in enumerate(path_lengths))
+
+    shortest_path = [index + 1 for index in paths[shortest_path_index]]
+
+    result_title = f"{result_title}_{shortest_path[0]}"
+    _draw_graph(problem, shortest_path, result_title, shortest_length)
+    print(result_title)
+    print(f"Path length : {shortest_length}")
+    print()
 
 
 def main():
@@ -90,8 +96,10 @@ def main():
     problem_a: StandardProblem = tsplib95.load('./data/kroa100.tsp')
     problem_b: StandardProblem = tsplib95.load('./data/krob100.tsp')
 
-    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_nn")
-    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_nn")
+    run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
+    run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
+    run_experiment(problem_a, GreedyCycleProblemSolver(), "krob100_gc")
+    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
 
 
 if __name__ == '__main__':
