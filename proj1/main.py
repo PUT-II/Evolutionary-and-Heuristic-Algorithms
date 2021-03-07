@@ -4,6 +4,7 @@ import numpy as np
 from tsplib95.models import StandardProblem
 
 from proj1.classes.NearestNeighbourProblemSolver import NearestNeighbourProblemSolver
+from proj1.classes.GreedyCycleProblemSolver import GreedyCycleProblemSolver
 from proj1.classes.ProblemSolver import ProblemSolver
 
 _EXPERIMENT_COUNT: int = 50
@@ -74,7 +75,7 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, file
         raise ValueError("problem.dimension < 50")
 
     while len(random_nodes) < _EXPERIMENT_COUNT:
-        random_node = random.randint(0, problem.dimension)
+        random_node = random.randint(1, problem.dimension)
 
         if random_node not in random_nodes:
             random_nodes.add(random_node)
@@ -89,8 +90,8 @@ def main():
     problem_a: StandardProblem = tsplib95.load('./data/kroa100.tsp')
     problem_b: StandardProblem = tsplib95.load('./data/krob100.tsp')
 
-    run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
-    run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
+    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_nn")
+    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_nn")
 
 
 if __name__ == '__main__':
