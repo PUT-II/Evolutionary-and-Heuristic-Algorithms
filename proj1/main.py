@@ -98,7 +98,9 @@ def main():
 
     run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
     run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
-    run_experiment(problem_a, GreedyCycleProblemSolver(), "krob100_gc")
+    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
+    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
+    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
     run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
 
 
