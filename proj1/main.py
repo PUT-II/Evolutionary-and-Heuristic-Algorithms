@@ -7,6 +7,7 @@ from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, Neare
     RegretCycleProblemSolver
 
 _EXPERIMENT_COUNT: int = 50
+_SHOW_NODE_LABELS: bool = False
 
 
 def _calculate_distance(point_1: List[int], point_2: List[int]) -> int:
@@ -47,6 +48,7 @@ def _draw_graph(problem: StandardProblem, path: List[int], result_title: str, pa
     import os
     import matplotlib.pyplot as plt
     import networkx as nx
+    global _SHOW_NODE_LABELS
 
     start_node = path[0]
     graph = nx.Graph()
@@ -65,7 +67,8 @@ def _draw_graph(problem: StandardProblem, path: List[int], result_title: str, pa
     _, ax = plt.subplots()
     nx.draw_networkx_edges(graph, pos, edge_color='red')
     nx.draw_networkx_nodes(graph, pos, node_size=1, node_color=node_colors, ax=ax)
-    nx.draw_networkx_labels(graph, pos, font_size=5)
+    if _SHOW_NODE_LABELS:
+        nx.draw_networkx_labels(graph, pos, font_size=5)
 
     if not os.path.exists('./graphs/'):
         os.makedirs('./graphs/')

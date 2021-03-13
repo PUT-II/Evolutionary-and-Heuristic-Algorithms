@@ -75,12 +75,10 @@ class GreedyCycleProblemSolver(ProblemSolver):
         while len(path) < round(shape[0] / 2):
             best_candidate_index = -1
             best_candidate_position = -1
-            best_length = np.uint64(-1)
+            best_cost = np.uint64(-1)
 
             # Loop on remaining indices and find best candidate
             temp_cycle = path + [path[0]]
-            cycle_length = _calculate_path_length(distance_matrix, temp_cycle)
-            cycle_length = np.uint64(cycle_length)
             for candidate_index in remaining_indices:
                 # Loop on positions of temporal cycle
                 for i in range(1, len(temp_cycle)):
@@ -91,13 +89,13 @@ class GreedyCycleProblemSolver(ProblemSolver):
                     candidate_length_2 = distance_matrix[index_2][candidate_index]
                     edge_length = distance_matrix[index_1][index_2]
 
-                    # Length when candidate is put in i-th position
-                    new_length = cycle_length + candidate_length_1 + candidate_length_2 - edge_length
+                    # Calculate cost of putting candidate in i-th position
+                    cost = np.int64(candidate_length_1) + candidate_length_2 - edge_length
 
-                    if new_length < best_length:
+                    if cost < best_cost:
                         best_candidate_index = candidate_index
                         best_candidate_position = i
-                        best_length = new_length
+                        best_cost = cost
 
             # Insert best candidate in best position to path
             path.insert(best_candidate_position, best_candidate_index)
