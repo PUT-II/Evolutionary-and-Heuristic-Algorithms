@@ -3,7 +3,8 @@ from typing import List, Set
 import numpy as np
 from tsplib95.models import StandardProblem
 
-from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, NearestNeighbourProblemSolver
+from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, NearestNeighbourProblemSolver, \
+    RegretCycleProblemSolver
 
 _EXPERIMENT_COUNT: int = 50
 
@@ -61,13 +62,15 @@ def _draw_graph(problem: StandardProblem, path: List[int], result_title: str, pa
 
     pos = nx.get_node_attributes(graph, 'pos')
 
+    _, ax = plt.subplots()
     nx.draw_networkx_edges(graph, pos, edge_color='red')
-    nx.draw_networkx_nodes(graph, pos, node_size=1, node_color=node_colors)
+    nx.draw_networkx_nodes(graph, pos, node_size=1, node_color=node_colors, ax=ax)
     nx.draw_networkx_labels(graph, pos, font_size=5)
 
     if not os.path.exists('./graphs/'):
         os.makedirs('./graphs/')
 
+    ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
     plt.suptitle(result_title)
     plt.title(f"Length : {path_length}")
     plt.savefig(f"./graphs/{result_title}.pdf")
@@ -93,51 +96,57 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
     import random
     global _EXPERIMENT_COUNT
 
-    random_nodes: Set[int] = set()
-
     if problem.dimension < _EXPERIMENT_COUNT:
-        raise ValueError("problem.dimension < 50")
+        raise ValueError(f"problem.dimension < {_EXPERIMENT_COUNT}")
 
+    # Pick different random nodes
+    random_nodes: Set[int] = set()
     while len(random_nodes) < _EXPERIMENT_COUNT:
         random_node = random.randint(1, problem.dimension)
 
         if random_node not in random_nodes:
             random_nodes.add(random_node)
 
+    # Create distance matrix and solve TSP problem using every random node
     distance_matrix: np.ndarray = _create_distance_matrix(problem)
     paths = []
     for node_index in random_nodes:
         path = problem_solver.solve(distance_matrix, node_index - 1)
         paths.append(path)
 
-    path_lengths = [_calculate_path_length(distance_matrix, path) for path in paths]
+    # Calculate min, max and average cycle lengths
+    cycle_lengths = [_calculate_path_length(distance_matrix, path) for path in paths]
+    minimum_length, shortest_cycle_index = min((val, idx) for (idx, val) in enumerate(cycle_lengths))
+    maximum_length = max(cycle_lengths)
+    average_length = round(sum(cycle_lengths) / len(cycle_lengths))
 
-    minimum_length, shortest_path_index = min((val, idx) for (idx, val) in enumerate(path_lengths))
-    maximum_length = max(path_lengths)
-    average_length = round(sum(path_lengths) / len(path_lengths))
-
-    shortest_path = [index + 1 for index in paths[shortest_path_index]]
-
+    # Draw best cycle
+    shortest_path = [index + 1 for index in paths[shortest_cycle_index]]
     result_title = f"{result_title}_{shortest_path[0]}"
     _draw_graph(problem, shortest_path, result_title, minimum_length)
 
     print(result_title)
-    print(f"Path length (min) : {minimum_length}")
-    print(f"Path length (max) : {maximum_length}")
-    print(f"Path length (avg) : {average_length}")
+    print(f"Cycle length (min) : {minimum_length}")
+    print(f"Cycle length (max) : {maximum_length}")
+    print(f"Cycle length (avg) : {average_length}")
     print()
 
 
 def main():
+    import shutil
     import tsplib95
 
     problem_a: StandardProblem = tsplib95.load('./data/kroa100.tsp')
     problem_b: StandardProblem = tsplib95.load('./data/krob100.tsp')
 
+    shutil.rmtree("./graphs/", ignore_errors=True)
+
     run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
     run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
     run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
     run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
+    run_experiment(problem_a, RegretCycleProblemSolver(), "kroa100_rc")
+    run_experiment(problem_b, RegretCycleProblemSolver(), "krob100_rc")
 
 
 if __name__ == '__main__':
