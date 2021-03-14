@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 
 
-def _calculate_path_length(distance_matrix: np.ndarray, path: List[int]) -> np.uint64:
+def _calculate_length(distance_matrix: np.ndarray, path: List[int]) -> np.uint64:
     length = np.uint64(0)
     for i in range(len(path) - 1):
         index_1 = path[i]
@@ -118,15 +118,15 @@ class RegretCycleProblemSolver(ProblemSolver):
         while len(path) < round(shape[0] / 2):
 
             # Loop on remaining indices and find best candidates
-            temp_path = path + [path[0]]
+            temp_cycle = path + [path[0]]
             k_regret_candidates = []
             for candidate_index in remaining_indices:
                 # Loop on positions of temporal cycle
                 k_regret_list = []
-                for i in range(1, len(temp_path)):
+                for i in range(1, len(temp_cycle)):
                     # Calculate all edge lengths
-                    index_1 = temp_path[i - 1]
-                    index_2 = temp_path[i]
+                    index_1 = temp_cycle[i - 1]
+                    index_2 = temp_cycle[i]
                     candidate_length_1 = distance_matrix[index_1][candidate_index]
                     candidate_length_2 = distance_matrix[index_2][candidate_index]
                     edge_length = distance_matrix[index_1][index_2]
