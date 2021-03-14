@@ -90,7 +90,10 @@ class GreedyCycleProblemSolver(ProblemSolver):
                     edge_length = distance_matrix[index_1][index_2]
 
                     # Calculate cost of putting candidate in i-th position
-                    cost = np.int64(candidate_length_1) + candidate_length_2 - edge_length
+                    if len(path) <= 2:
+                        cost = np.int64(candidate_length_1) + candidate_length_2
+                    else:
+                        cost = np.int64(candidate_length_1) + candidate_length_2 - edge_length
 
                     if cost < best_cost:
                         best_candidate_index = candidate_index
