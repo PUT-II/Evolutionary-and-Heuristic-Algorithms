@@ -125,7 +125,7 @@ class RegretCycleProblemSolver(ProblemSolver):
             k_regret_candidates = []
             for candidate_index in remaining_indices:
                 # Loop on positions of temporal cycle
-                k_regret_list = []
+                cost_list = []
                 for i in range(1, len(temp_cycle)):
                     # Calculate all edge lengths
                     index_1 = temp_cycle[i - 1]
@@ -139,17 +139,17 @@ class RegretCycleProblemSolver(ProblemSolver):
                         cost = np.int64(candidate_length_1) + candidate_length_2
                     else:
                         cost = np.int64(candidate_length_1) + candidate_length_2 - edge_length
-                    k_regret_list.append((candidate_index, i, cost))
+                    cost_list.append((candidate_index, i, cost))
 
                 # Get (up to) 3 best candidate positions
-                k_regret_list = sorted(k_regret_list, key=lambda elem: elem[2])[0:3]
+                cost_list = sorted(cost_list, key=lambda elem: elem[2])[0:3]
 
                 # Calculate k_regret for 1-st best candidate
                 if len(path) <= 2:
-                    k_regret = k_regret_list[0][2] - k_regret_list[1][2]
+                    k_regret = cost_list[0][2] - cost_list[1][2]
                 else:
-                    k_regret = 2 * k_regret_list[0][2] - k_regret_list[1][2] - k_regret_list[2][2]
-                k_regret_candidates.append((k_regret_list[0][0], k_regret_list[0][1], k_regret))
+                    k_regret = 2 * cost_list[0][2] - cost_list[1][2] - cost_list[2][2]
+                k_regret_candidates.append((cost_list[0][0], cost_list[0][1], k_regret))
 
             # Choose candidate with highest regret
             best_index, best_position, _ = max(k_regret_candidates, key=lambda elem: elem[2])
