@@ -6,6 +6,7 @@ from tsplib95.models import StandardProblem
 import common.utils as utils
 from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, NearestNeighbourProblemSolver, \
     RegretCycleProblemSolver
+from proj2.local_search import RandomSearch
 
 _EXPERIMENT_COUNT: int = 50
 
@@ -65,12 +66,8 @@ def main():
 
     shutil.rmtree("./graphs/", ignore_errors=True)
 
-    run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
-    run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
-    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
-    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
-    run_experiment(problem_a, RegretCycleProblemSolver(), "kroa100_rc")
-    run_experiment(problem_b, RegretCycleProblemSolver(), "krob100_rc")
+    run_experiment(problem_a, RandomSearch(), "kroa100_rs")
+    run_experiment(problem_b, RandomSearch(), "krob100_rs")
 
 
 if __name__ == '__main__':
