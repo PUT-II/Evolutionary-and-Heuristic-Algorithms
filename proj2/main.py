@@ -4,11 +4,10 @@ import numpy as np
 from tsplib95.models import StandardProblem
 
 import common.utils as utils
-from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, NearestNeighbourProblemSolver, \
-    RegretCycleProblemSolver
+from common.interfaces import ProblemSolver
 from proj2.local_search import RandomSearch
 
-_EXPERIMENT_COUNT: int = 50
+_EXPERIMENT_COUNT: int = 100
 
 
 def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, result_title: str = "graph"):

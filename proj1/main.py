@@ -4,8 +4,8 @@ import numpy as np
 from tsplib95.models import StandardProblem
 
 import common.utils as utils
-from proj1.problem_solvers import ProblemSolver, GreedyCycleProblemSolver, NearestNeighbourProblemSolver, \
-    RegretCycleProblemSolver
+from common.interfaces import ProblemSolver
+from proj1.problem_solvers import GreedyCycleProblemSolver, NearestNeighbourProblemSolver, RegretCycleProblemSolver
 
 _EXPERIMENT_COUNT: int = 50
 

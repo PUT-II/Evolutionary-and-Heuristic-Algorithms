@@ -83,3 +83,19 @@ def calculate_path_length(distance_matrix: np.ndarray, path: list) -> int:
         total_length += distance_matrix[path[i], path[i + 1]]
 
     return total_length
+
+
+def calculate_length(distance_matrix: np.ndarray, path: List[int]) -> np.uint64:
+    length = np.uint64(0)
+    for i in range(len(path) - 1):
+        index_1 = path[i]
+        index_2 = path[i + 1]
+        length += distance_matrix[index_1][index_2]
+
+    return length
+
+
+def validate_shape(shape: tuple) -> tuple:
+    if len(shape) != 2 or shape[0] != shape[1]:
+        raise ValueError('Wrong distance matrix shape: len(shape) != 2 or shape[0] != shape[1]')
+    return shape

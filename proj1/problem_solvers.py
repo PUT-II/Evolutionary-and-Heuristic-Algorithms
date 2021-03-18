@@ -2,28 +2,13 @@ from typing import List
 
 import numpy as np
 
+import common.utils as utils
 from common.interfaces import ProblemSolver
-
-
-def _calculate_length(distance_matrix: np.ndarray, path: List[int]) -> np.uint64:
-    length = np.uint64(0)
-    for i in range(len(path) - 1):
-        index_1 = path[i]
-        index_2 = path[i + 1]
-        length += distance_matrix[index_1][index_2]
-
-    return length
-
-
-def _validate_shape(shape: tuple) -> tuple:
-    if len(shape) != 2 or shape[0] != shape[1]:
-        raise ValueError('Wrong distance matrix shape: len(shape) != 2 or shape[0] != shape[1]')
-    return shape
 
 
 class NearestNeighbourProblemSolver(ProblemSolver):
     def solve(self, distance_matrix: np.ndarray, start_node: int = 0) -> List[int]:
-        shape = _validate_shape(distance_matrix.shape)
+        shape = utils.validate_shape(distance_matrix.shape)
 
         # Copy distance to not modify argument matrix
         distance_matrix_ = distance_matrix.copy()
@@ -55,7 +40,7 @@ class NearestNeighbourProblemSolver(ProblemSolver):
 class GreedyCycleProblemSolver(ProblemSolver):
 
     def solve(self, distance_matrix: np.ndarray, start_node: int = 0) -> List[int]:
-        shape = _validate_shape(distance_matrix.shape)
+        shape = utils.validate_shape(distance_matrix.shape)
 
         # Loop until path contains 50% of nodes
         path: List[int] = [start_node, np.argmin(distance_matrix[start_node, :])]
@@ -73,9 +58,9 @@ class GreedyCycleProblemSolver(ProblemSolver):
                     # Calculate all edge lengths
                     index_1 = temp_cycle[i - 1]
                     index_2 = temp_cycle[i]
-                    candidate_length_1 = distance_matrix[index_1][candidate_index]
-                    candidate_length_2 = distance_matrix[index_2][candidate_index]
-                    edge_length = distance_matrix[index_1][index_2]
+                    candidate_length_1 = distance_matrix[index_1, candidate_index]
+                    candidate_length_2 = distance_matrix[index_2, candidate_index]
+                    edge_length = distance_matrix[index_1, index_2]
 
                     # Calculate cost of putting candidate in i-th position
                     if len(path) <= 2:
@@ -101,7 +86,7 @@ class GreedyCycleProblemSolver(ProblemSolver):
 class RegretCycleProblemSolver(ProblemSolver):
 
     def solve(self, distance_matrix: np.ndarray, start_node: int = 0) -> List[int]:
-        shape = _validate_shape(distance_matrix.shape)
+        shape = utils.validate_shape(distance_matrix.shape)
 
         # Loop until path contains 50% of nodes
         path: List[int] = [start_node, np.argmin(distance_matrix[start_node, :])]
@@ -118,9 +103,9 @@ class RegretCycleProblemSolver(ProblemSolver):
                     # Calculate all edge lengths
                     index_1 = temp_cycle[i - 1]
                     index_2 = temp_cycle[i]
-                    candidate_length_1 = distance_matrix[index_1][candidate_index]
-                    candidate_length_2 = distance_matrix[index_2][candidate_index]
-                    edge_length = distance_matrix[index_1][index_2]
+                    candidate_length_1 = distance_matrix[index_1, candidate_index]
+                    candidate_length_2 = distance_matrix[index_2, candidate_index]
+                    edge_length = distance_matrix[index_1, index_2]
 
                     # Calculate cost of putting candidate in i-th position
                     if len(path) <= 2:
