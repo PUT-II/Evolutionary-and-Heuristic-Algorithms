@@ -25,7 +25,7 @@ def create_distance_matrix(problem: StandardProblem) -> np.ndarray:
     :param problem: problem which contains graph nodes
     :return: distance matrix
     """
-    matrix = np.full(shape=(problem.dimension, problem.dimension), dtype=np.uint32, fill_value=-1)
+    matrix = np.zeros(shape=(problem.dimension, problem.dimension), dtype=np.int32)
 
     node_dict = dict(problem.node_coords)
 
