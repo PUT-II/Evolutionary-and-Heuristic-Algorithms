@@ -1,16 +1,17 @@
-from typing import Set
+from typing import Set, List
 
 import numpy as np
 from tsplib95.models import StandardProblem
 
 import common.utils as utils
-from common.interfaces import ProblemSolver
-from proj1.problem_solvers import GreedyCycleProblemSolver, NearestNeighbourProblemSolver, RegretCycleProblemSolver
+from common.interfaces import SearchProblemSolver
+from proj2.local_search import RandomSearch, EdgeSwapSteepSearch, NodeSwapSteepSearch, GreedyLocalSearch
 
-_EXPERIMENT_COUNT: int = 50
+_EXPERIMENT_COUNT: int = 100
 
 
-def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, result_title: str = "graph"):
+def run_experiment(problem: StandardProblem, problem_solver: SearchProblemSolver, result_title: str = "graph") \
+        -> List[int]:
     """ Solves problem using 50 different randomly selected start nodes.
 
     :param problem: problem which contains graph nodes
@@ -34,8 +35,8 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
     # Create distance matrix and solve TSP problem using every random node
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
     paths = []
-    for node_index in random_nodes:
-        path = problem_solver.solve(distance_matrix, node_index - 1)
+    for _ in random_nodes:
+        path = problem_solver.solve(distance_matrix)
         paths.append(path)
 
     # Calculate min, max and average cycle lengths
@@ -54,6 +55,7 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
     print(f"Cycle length (max) : {maximum_length}")
     print(f"Cycle length (avg) : {average_length}")
     print()
+    return shortest_path
 
 
 def main():
@@ -63,14 +65,18 @@ def main():
     problem_a: StandardProblem = tsplib95.load('data/kroa100.tsp')
     problem_b: StandardProblem = tsplib95.load('data/krob100.tsp')
 
-    shutil.rmtree("graphs/", ignore_errors=True)
+    shutil.rmtree("./graphs/", ignore_errors=True)
 
-    run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
-    run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
-    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
-    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
-    run_experiment(problem_a, RegretCycleProblemSolver(), "kroa100_rc")
-    run_experiment(problem_b, RegretCycleProblemSolver(), "krob100_rc")
+    run_experiment(problem_a, RandomSearch(), "kroa100_rs")
+    run_experiment(problem_b, RandomSearch(), "krob100_rs")
+    run_experiment(problem_a, NodeSwapSteepSearch(), "kroa100_nsss")
+    run_experiment(problem_b, NodeSwapSteepSearch(), "krob100_nsss")
+    run_experiment(problem_a, EdgeSwapSteepSearch(), "kroa100_esss")
+    run_experiment(problem_b, EdgeSwapSteepSearch(), "krob100_esss")
+    run_experiment(problem_a, GreedyLocalSearch(use_node_swap=True), "kroa100_gls_ns")
+    run_experiment(problem_b, GreedyLocalSearch(use_node_swap=True), "krob100_gls_ns")
+    run_experiment(problem_a, GreedyLocalSearch(use_edge_swap=True), "kroa100_gls_es")
+    run_experiment(problem_b, GreedyLocalSearch(use_edge_swap=True), "krob100_gls_es")
 
 
 if __name__ == '__main__':
