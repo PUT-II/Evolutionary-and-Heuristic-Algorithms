@@ -60,6 +60,9 @@ def run_experiment_constructive(problem: StandardProblem, problem_solver: Proble
 
     # Create distance matrix and solve TSP problem using every random node
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
+    for i in range(len(distance_matrix)):
+        distance_matrix[i, i] = np.iinfo(distance_matrix.dtype).max
+
     paths = []
     times = []
     for node_index in random_nodes:
