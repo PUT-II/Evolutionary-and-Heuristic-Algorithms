@@ -1,16 +1,17 @@
+import time
 from typing import Set
 
 import numpy as np
 from tsplib95.models import StandardProblem
 
 import common.utils as utils
-from common.interfaces import ProblemSolver
-from proj1.problem_solvers import GreedyCycleProblemSolver, NearestNeighbourProblemSolver, RegretCycleProblemSolver
+from common.interfaces import SearchProblemSolver
+from solvers.local_search_improved import RandomSearch, EdgeSwapSteepSearch
 
-_EXPERIMENT_COUNT: int = 50
+_EXPERIMENT_COUNT: int = 100
 
 
-def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, result_title: str = "graph"):
+def run_experiment(problem: StandardProblem, problem_solver: SearchProblemSolver, result_title: str = "graph") -> float:
     """ Solves problem using 50 different randomly selected start nodes.
 
     :param problem: problem which contains graph nodes
@@ -34,8 +35,12 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
     # Create distance matrix and solve TSP problem using every random node
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
     paths = []
-    for node_index in random_nodes:
-        path = problem_solver.solve(distance_matrix, node_index - 1)
+    times = []
+    for _ in random_nodes:
+        time_start = time.time()
+        path = problem_solver.solve(distance_matrix)
+        time_end = time.time()
+        times.append((time_end - time_start))
         paths.append(path)
 
     # Calculate min, max and average cycle lengths
@@ -43,6 +48,10 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
     minimum_length, shortest_cycle_index = min((val, idx) for (idx, val) in enumerate(cycle_lengths))
     maximum_length = max(cycle_lengths)
     average_length = round(sum(cycle_lengths) / len(cycle_lengths))
+
+    maximum_time = max(times)
+    minimum_time = min(times)
+    average_time = round(sum(times) / len(times), 3)
 
     # Draw best cycle
     shortest_path = [index + 1 for index in paths[shortest_cycle_index]]
@@ -53,24 +62,30 @@ def run_experiment(problem: StandardProblem, problem_solver: ProblemSolver, resu
     print(f"Cycle length (min) : {minimum_length}")
     print(f"Cycle length (max) : {maximum_length}")
     print(f"Cycle length (avg) : {average_length}")
+    print(f"Time (min) : {round(minimum_time * 1000.0)}ms")
+    print(f"Time (max) : {round(maximum_time * 1000.0)}ms")
+    print(f"Time (avg) : {round(average_time * 1000.0)}ms")
     print()
+    return average_time
 
 
 def main():
     import shutil
     import tsplib95
 
-    problem_a: StandardProblem = tsplib95.load('data/kroa100.tsp')
-    problem_b: StandardProblem = tsplib95.load('data/krob100.tsp')
+    problem_a: StandardProblem = tsplib95.load('data/kroa200.tsp')
+    problem_b: StandardProblem = tsplib95.load('data/krob200.tsp')
 
-    shutil.rmtree("graphs/", ignore_errors=True)
+    shutil.rmtree("./graphs/", ignore_errors=True)
 
-    run_experiment(problem_a, NearestNeighbourProblemSolver(), "kroa100_nn")
-    run_experiment(problem_b, NearestNeighbourProblemSolver(), "krob100_nn")
-    run_experiment(problem_a, GreedyCycleProblemSolver(), "kroa100_gc")
-    run_experiment(problem_b, GreedyCycleProblemSolver(), "krob100_gc")
-    run_experiment(problem_a, RegretCycleProblemSolver(), "kroa100_rc")
-    run_experiment(problem_b, RegretCycleProblemSolver(), "krob100_rc")
+    average_time = []
+    average_time.append(run_experiment(problem_a, EdgeSwapSteepSearch(), "kroa200_ss"))
+    average_time.append(run_experiment(problem_b, EdgeSwapSteepSearch(), "krob200_ss"))
+    max_avg_time = max(average_time)
+    print(f"Max average time : {round(max_avg_time * 1000.0)}")
+    print()
+    run_experiment(problem_a, RandomSearch(max_avg_time), "kroa200_rs")
+    run_experiment(problem_b, RandomSearch(max_avg_time), "krob200_rs")
 
 
 if __name__ == '__main__':
