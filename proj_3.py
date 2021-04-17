@@ -15,8 +15,8 @@ def main():
 
     shutil.rmtree("./graphs/", ignore_errors=True)
 
-    run_experiment_local_search(problem_a, CandidateSteepSearch(), "kroa200_ss")
-    run_experiment_local_search(problem_b, CandidateSteepSearch(), "krob200_ss")
+    run_experiment_local_search(problem_a, CandidateSteepSearch(), "kroa200_css", _EXPERIMENT_COUNT)
+    run_experiment_local_search(problem_b, CandidateSteepSearch(), "krob200_css", _EXPERIMENT_COUNT)
 
 
 if __name__ == '__main__':
