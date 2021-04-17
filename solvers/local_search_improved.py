@@ -7,15 +7,16 @@ from common.interfaces import SearchProblemSolver
 from solvers.local_search import RandomSearch
 
 
-def _find_best_outside_swap(distance_matrix: np.ndarray, cycle: list, unused_nodes: list, i_1):
+def _find_best_outside_swap(distance_matrix: np.ndarray, cycle: list, unused_nodes: list, unused_nodes_index_dict, i_1):
     best_move: tuple = tuple()
     best_cost_delta = np.iinfo(distance_matrix.dtype).max
 
     sorted_indices = np.argsort(distance_matrix[cycle[i_1]])
     nearest_five_indices = set()
+
     for node in sorted_indices:
         if node in unused_nodes:
-            nearest_five_indices.add(unused_nodes.index(node))
+            nearest_five_indices.add(unused_nodes_index_dict[node])
         if len(nearest_five_indices) >= 5:
             break
 
@@ -97,8 +98,13 @@ class CandidateSteepSearch(SearchProblemSolver):
         best_move: tuple = tuple()
         best_operation = None
 
+        unused_nodes_index_dict = {}
+        for i in range(len(unused_nodes)):
+            unused_nodes_index_dict[unused_nodes[i]] = i
+
         for i_1 in range(len(cycle) - 1):
-            move, cost_delta = _find_best_outside_swap(distance_matrix, cycle, unused_nodes, i_1)
+            move, cost_delta = _find_best_outside_swap(distance_matrix, cycle, unused_nodes, unused_nodes_index_dict,
+                                                       i_1)
             if cost_delta < best_cost_delta:
                 best_cost_delta = cost_delta
                 best_move = move
