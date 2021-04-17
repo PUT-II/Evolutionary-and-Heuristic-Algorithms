@@ -4,7 +4,7 @@ import tsplib95
 from tsplib95.models import StandardProblem
 
 from common.experiments import run_experiment_local_search
-from solvers.local_search_improved import EdgeSwapSteepSearch
+from solvers.local_search_improved import CandidateSteepSearch
 
 _EXPERIMENT_COUNT: int = 100
 
@@ -15,8 +15,8 @@ def main():
 
     shutil.rmtree("./graphs/", ignore_errors=True)
 
-    run_experiment_local_search(problem_a, EdgeSwapSteepSearch(), "kroa200_ss")
-    run_experiment_local_search(problem_b, EdgeSwapSteepSearch(), "krob200_ss")
+    run_experiment_local_search(problem_a, CandidateSteepSearch(), "kroa200_ss")
+    run_experiment_local_search(problem_b, CandidateSteepSearch(), "krob200_ss")
 
 
 if __name__ == '__main__':

@@ -12,8 +12,17 @@ from common.interfaces import SearchProblemSolver
 def _find_best_outside_swap(distance_matrix: np.ndarray, cycle: list, unused_nodes: list, i_1):
     best_move: tuple = tuple()
     best_cost_delta = np.iinfo(np.int32).max
-    for i_2 in range(len(unused_nodes)):
-        move, cost_delta = _find_outside_swap_move(distance_matrix, cycle, unused_nodes, i_1, i_2)
+    # TODO: Find 5 nearest neighbors for cycle i_1
+    distances = distance_matrix[cycle[i_1]]
+    sorted_distances = np.argsort(distances)
+    nearest_five = []
+    for node in sorted_distances:
+        if node in unused_nodes:
+            nearest_five.append(node)
+        if len(nearest_five) >= 5:
+            break
+    for i_2 in range(len(nearest_five)):
+        move, cost_delta = _find_outside_swap_move(distance_matrix, cycle, nearest_five, i_1, i_2)
         if cost_delta < best_cost_delta:
             best_cost_delta = cost_delta
             best_move = move
@@ -102,13 +111,13 @@ class RandomSearch(SearchProblemSolver):
         return result_cycle
 
 
-class EdgeSwapSteepSearch(SearchProblemSolver):
+class CandidateSteepSearch(SearchProblemSolver):
     def solve(self, distance_matrix: np.ndarray) -> List[int]:
         cycle = RandomSearch(0.0).solve(distance_matrix)
         unused_nodes = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
 
         while True:
-            move, operation, cost_delta = EdgeSwapSteepSearch.__find_best_move(distance_matrix, cycle, unused_nodes)
+            move, operation, cost_delta = CandidateSteepSearch.__find_best_move(distance_matrix, cycle, unused_nodes)
 
             if cost_delta >= 0:
                 break
@@ -128,6 +137,7 @@ class EdgeSwapSteepSearch(SearchProblemSolver):
         best_cost_delta = np.iinfo(np.int32).max
         best_move: tuple = tuple()
         best_operation = None
+
         for i_1 in range(len(cycle) - 1):
             move, cost_delta = _find_best_outside_swap(distance_matrix, cycle, unused_nodes, i_1)
             if cost_delta < best_cost_delta:
@@ -138,7 +148,7 @@ class EdgeSwapSteepSearch(SearchProblemSolver):
             if i_1 >= len(cycle) - 2:
                 continue
 
-            move, cost_delta = EdgeSwapSteepSearch.__find_best_edge_swap_move(distance_matrix, cycle, i_1)
+            move, cost_delta = CandidateSteepSearch.__find_best_edge_swap_move(distance_matrix, cycle, i_1)
             if cost_delta < best_cost_delta:
                 best_cost_delta = cost_delta
                 best_move = move
