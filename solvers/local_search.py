@@ -11,7 +11,7 @@ from common.interfaces import SearchProblemSolver
 
 def _find_best_outside_swap(distance_matrix: np.ndarray, cycle: list, unused_nodes: list, i_1):
     best_move: tuple = tuple()
-    best_cost_delta = np.iinfo(np.int32).max
+    best_cost_delta = np.iinfo(distance_matrix.dtype).max
     for i_2 in range(len(unused_nodes)):
         move, cost_delta = _find_outside_swap_move(distance_matrix, cycle, unused_nodes, i_1, i_2)
         if cost_delta < best_cost_delta:
@@ -117,7 +117,7 @@ class RandomSearch(SearchProblemSolver):
             return RandomSearch.__generate_random_cycle(distance_matrix)
 
         best_result_cycle = []
-        best_result_cycle_length = np.iinfo(np.int32).max
+        best_result_cycle_length = np.iinfo(distance_matrix.dtype).max
         time_start = time.time()
         while time.time() - time_start < self.gen_time:
             result_cycle = RandomSearch.__generate_random_cycle(distance_matrix)
@@ -173,7 +173,7 @@ class NodeSwapSteepSearch(SearchProblemSolver):
 
     @staticmethod
     def __find_best_move(distance_matrix: np.ndarray, cycle: list, unused_nodes: list):
-        best_cost_delta = np.iinfo(np.int32).max
+        best_cost_delta = np.iinfo(distance_matrix.dtype).max
         best_move: tuple = tuple()
         best_operation = None
         for i_1 in range(len(cycle) - 1):
@@ -194,7 +194,7 @@ class NodeSwapSteepSearch(SearchProblemSolver):
 
     @staticmethod
     def __find_best_node_swap_move(distance_matrix: np.ndarray, cycle: list, i_1):
-        best_cost_delta = np.iinfo(np.int32).max
+        best_cost_delta = np.iinfo(distance_matrix.dtype).max
         best_move: tuple = tuple()
 
         # Iterate over nodes after node at i_1
@@ -230,7 +230,7 @@ class EdgeSwapSteepSearch(SearchProblemSolver):
 
     @staticmethod
     def __find_best_move(distance_matrix: np.ndarray, cycle: list, unused_nodes: list):
-        best_cost_delta = np.iinfo(np.int32).max
+        best_cost_delta = np.iinfo(distance_matrix.dtype).max
         best_move: tuple = tuple()
         best_operation = None
         for i_1 in range(len(cycle) - 1):
@@ -253,7 +253,7 @@ class EdgeSwapSteepSearch(SearchProblemSolver):
 
     @staticmethod
     def __find_best_edge_swap_move(distance_matrix: np.ndarray, cycle: list, i_1):
-        best_cost_delta = np.iinfo(np.int32).max
+        best_cost_delta = np.iinfo(distance_matrix.dtype).max
         best_move: tuple = tuple()
         for i_2 in range(i_1 + 2, len(cycle) - 1):
             move, cost_delta = _find_edge_swap_move(distance_matrix, cycle, i_1, i_2)
@@ -347,7 +347,7 @@ class GreedyLocalSearch(SearchProblemSolver):
                 if cost_delta < 0:
                     return move, operation, cost_delta
 
-        return tuple(), None, np.iinfo(np.int32).max
+        return tuple(), None, np.iinfo(distance_matrix.dtype).max
 
     @staticmethod
     def __find_first_favorable_node_swap_move(distance_matrix: np.ndarray, cycle: list, index_1, indices: list):
@@ -358,7 +358,7 @@ class GreedyLocalSearch(SearchProblemSolver):
             move, cost_delta = _find_node_swap_move(distance_matrix, cycle, i_1, i_2)
             if cost_delta < 0:
                 return move, cost_delta, LocalSearchOperation.swap_inside
-        return tuple(), np.iinfo(np.int32).max, LocalSearchOperation.swap_inside
+        return tuple(), np.iinfo(distance_matrix.dtype).max, LocalSearchOperation.swap_inside
 
     @staticmethod
     def __find_first_favorable_edge_swap_move(distance_matrix: np.ndarray, cycle: list, i, random_indices_2: list):
@@ -371,9 +371,9 @@ class GreedyLocalSearch(SearchProblemSolver):
                 continue
 
             move, cost_delta = _find_edge_swap_move(distance_matrix, cycle, i_1, i_2)
-            if cost_delta < np.iinfo(np.int32).max:
+            if cost_delta < np.iinfo(distance_matrix.dtype).max:
                 return move, cost_delta, LocalSearchOperation.swap_edges
-        return tuple(), np.iinfo(np.int32).max, LocalSearchOperation.swap_edges
+        return tuple(), np.iinfo(distance_matrix.dtype).max, LocalSearchOperation.swap_edges
 
     @staticmethod
     def __find_first_favorable_outside_swap(distance_matrix: np.ndarray, cycle: list, unused_nodes: list, i,
@@ -383,6 +383,6 @@ class GreedyLocalSearch(SearchProblemSolver):
             i_2 = random_index if random_index < i else i
 
             move, cost_delta = _find_outside_swap_move(distance_matrix, cycle, unused_nodes, i_1, i_2)
-            if cost_delta < np.iinfo(np.int32).max:
+            if cost_delta < np.iinfo(distance_matrix.dtype).max:
                 return move, cost_delta, LocalSearchOperation.swap_outside
-        return tuple(), np.iinfo(np.int32).max, LocalSearchOperation.swap_outside
+        return tuple(), np.iinfo(distance_matrix.dtype).max, LocalSearchOperation.swap_outside

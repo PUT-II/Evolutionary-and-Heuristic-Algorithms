@@ -10,6 +10,8 @@ class NearestNeighbourProblemSolver(ProblemSolver):
     def solve(self, distance_matrix: np.ndarray, start_node: int = 0) -> List[int]:
         shape = utils.validate_shape(distance_matrix.shape)
 
+        max_distance = np.iinfo(distance_matrix.dtype).max
+
         # Copy distance to not modify argument matrix
         distance_matrix_ = distance_matrix.copy()
 
@@ -23,8 +25,8 @@ class NearestNeighbourProblemSolver(ProblemSolver):
             closest_node_index = np.argmin(current_node_distances)
 
             # Mark edges as already used
-            distance_matrix_[current_node_index, :] = -1
-            distance_matrix_[:, current_node_index] = -1
+            distance_matrix_[current_node_index, :] = max_distance
+            distance_matrix_[:, current_node_index] = max_distance
 
             # Add node to path
             path.append(closest_node_index)
