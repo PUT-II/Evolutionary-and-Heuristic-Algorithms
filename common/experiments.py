@@ -28,6 +28,7 @@ def __process_results(problem: StandardProblem, result_title: str, paths: list, 
     utils.draw_graph(problem, shortest_path, result_title, minimum_length)
 
     print(result_title)
+    print(f"Path : {shortest_path}")
     print(f"Cycle length (min) : {minimum_length}")
     print(f"Cycle length (max) : {maximum_length}")
     print(f"Cycle length (avg) : {average_length}")
