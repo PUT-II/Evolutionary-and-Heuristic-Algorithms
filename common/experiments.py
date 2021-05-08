@@ -39,7 +39,9 @@ def __process_results(problem: StandardProblem, result_title: str, paths: list, 
     return average_time
 
 
-def run_experiment_constructive(problem: StandardProblem, problem_solver: ProblemSolver, result_title: str = "graph",
+def run_experiment_constructive(problem: StandardProblem,
+                                problem_solver: ProblemSolver,
+                                result_title: str = "graph",
                                 experiment_count: int = 50):
     """ Solves problem using 50 different randomly selected start nodes.
 
@@ -76,8 +78,11 @@ def run_experiment_constructive(problem: StandardProblem, problem_solver: Proble
     __process_results(problem, result_title, paths, times)
 
 
-def run_experiment_local_search(problem: StandardProblem, problem_solver: SearchProblemSolver,
-                                result_title: str = "graph", experiment_count: int = 100) -> float:
+def run_experiment_local_search(problem: StandardProblem,
+                                problem_solver: SearchProblemSolver,
+                                result_title: str = "graph",
+                                experiment_count: int = 100,
+                                max_time: float = None) -> float:
     """ Solves problem using 50 different randomly selected start nodes.
 
     :param problem: problem which contains graph nodes
@@ -87,21 +92,13 @@ def run_experiment_local_search(problem: StandardProblem, problem_solver: Search
     if problem.dimension < experiment_count:
         raise ValueError(f"problem.dimension < {experiment_count}")
 
-    # Pick different random nodes
-    random_nodes: Set[int] = set()
-    while len(random_nodes) < experiment_count:
-        random_node = random.randint(1, problem.dimension)
-
-        if random_node not in random_nodes:
-            random_nodes.add(random_node)
-
     # Create distance matrix and solve TSP problem using every random node
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
     paths = []
     times = []
-    for _ in random_nodes:
+    for _ in range(experiment_count):
         time_start = time.time()
-        path = problem_solver.solve(distance_matrix)
+        path = problem_solver.solve(distance_matrix, max_time=max_time)
         time_end = time.time()
         times.append((time_end - time_start))
         paths.append(path)
