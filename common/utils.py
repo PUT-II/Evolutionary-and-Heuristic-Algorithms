@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from tsplib95.models import StandardProblem
 
-_SHOW_NODE_LABELS: bool = False
+_SHOW_NODE_LABELS: bool = True
 
 
 def calculate_distance(point_1: List[int], point_2: List[int]) -> int:

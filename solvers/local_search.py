@@ -112,7 +112,7 @@ class RandomSearch(SearchProblemSolver):
     def __init__(self, gen_time: float):
         self.gen_time = gen_time
 
-    def solve(self, distance_matrix: np.ndarray, start_cycle=None, max_time=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
         if self.gen_time == 0.0:
             return RandomSearch.__generate_random_cycle(distance_matrix)
 
@@ -148,7 +148,7 @@ class RandomSearch(SearchProblemSolver):
 
 
 class NodeSwapSteepSearch(SearchProblemSolver):
-    def solve(self, distance_matrix: np.ndarray, start_cycle=None, max_time=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
         cycle = RandomSearch(0.0).solve(distance_matrix)
 
         unused_nodes = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
@@ -208,7 +208,7 @@ class NodeSwapSteepSearch(SearchProblemSolver):
 
 
 class EdgeSwapSteepSearch(SearchProblemSolver):
-    def solve(self, distance_matrix: np.ndarray, start_cycle=None, max_time=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
         cycle = RandomSearch(0.0).solve(distance_matrix)
         unused_nodes = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
 
@@ -273,7 +273,7 @@ class GreedyLocalSearch(SearchProblemSolver):
         if use_edge_swap:
             self.operations += (LocalSearchOperation.swap_edges,)
 
-    def solve(self, distance_matrix: np.ndarray, start_cycle=None, max_time=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
         shape = utils.validate_shape(distance_matrix.shape)
         cycle = RandomSearch(0.0).solve(distance_matrix)
 

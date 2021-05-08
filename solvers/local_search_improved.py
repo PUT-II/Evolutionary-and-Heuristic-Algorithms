@@ -86,7 +86,7 @@ class LocalSearchOperation(Enum):
 
 
 class CandidateSteepSearch(SearchProblemSolver):
-    def solve(self, distance_matrix: np.ndarray, start_cycle: List[int] = None, max_time=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle: List[int] = None) -> List[int]:
         if start_cycle:
             cycle = start_cycle
         else:
@@ -158,7 +158,7 @@ class ScoreSteepSearch(SearchProblemSolver):
     def __init__(self):
         self.cache = set()
 
-    def solve(self, distance_matrix: np.ndarray, start_cycle=None, max_time=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
         cycle = RandomSearch(0.0).solve(distance_matrix)
         unused_nodes_list = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
 
