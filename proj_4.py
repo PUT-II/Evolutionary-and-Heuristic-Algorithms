@@ -32,7 +32,7 @@ def main():
                                           avg_time_krob)
     run_experiment_iterative_local_search(problem_a, IteratedLocalSearch2a(), "kroa200_ils2a", _EXPERIMENT_COUNT,
                                           avg_time_kroa)
-    run_experiment_iterative_local_search(problem_b, IteratedLocalSearch2a(), "krob200_ils2a", _EXPERIMENT_COUNT,
+    run_experiment_iterative_local_search(problem_b, IteratedLocalSearch2a(), "krob200_ils2b", _EXPERIMENT_COUNT,
                                           avg_time_krob)
 
 
