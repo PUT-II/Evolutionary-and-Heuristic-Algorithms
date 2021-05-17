@@ -6,10 +6,14 @@ import numpy as np
 from tsplib95.models import StandardProblem
 
 from common import utils
-from common.interfaces import ProblemSolver, SearchProblemSolver
+from common.interfaces import ProblemSolver, SearchProblemSolver, IteratedSearchProblemSolver
 
 
-def __process_results(problem: StandardProblem, result_title: str, paths: list, times: list):
+def __process_results(problem: StandardProblem,
+                      result_title: str,
+                      paths: list,
+                      times: list,
+                      search_invocations: list = None):
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
 
     # Calculate min, max and average cycle lengths
@@ -35,11 +39,22 @@ def __process_results(problem: StandardProblem, result_title: str, paths: list, 
     print(f"Time (min) : {round(minimum_time * 1000.0)}ms")
     print(f"Time (max) : {round(maximum_time * 1000.0)}ms")
     print(f"Time (avg) : {round(average_time * 1000.0)}ms")
+
+    if search_invocations:
+        maximum_invocations = max(search_invocations)
+        minimum_invocations = min(search_invocations)
+        average_invocations = round(sum(search_invocations) / len(search_invocations), 3)
+        print(f"Search invocations (min) : {maximum_invocations}")
+        print(f"Search invocations (max) : {minimum_invocations}")
+        print(f"Search invocations (avg) : {average_invocations}")
+
     print()
     return average_time
 
 
-def run_experiment_constructive(problem: StandardProblem, problem_solver: ProblemSolver, result_title: str = "graph",
+def run_experiment_constructive(problem: StandardProblem,
+                                problem_solver: ProblemSolver,
+                                result_title: str = "graph",
                                 experiment_count: int = 50):
     """ Solves problem using 50 different randomly selected start nodes.
 
@@ -59,7 +74,7 @@ def run_experiment_constructive(problem: StandardProblem, problem_solver: Proble
         if random_node not in random_nodes:
             random_nodes.add(random_node)
 
-    # Create distance matrix and solve TSP problem using every random node
+    # Create distance matrix and solve TSP problem using every random start node
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
     for i in range(len(distance_matrix)):
         distance_matrix[i, i] = np.iinfo(distance_matrix.dtype).max
@@ -76,8 +91,10 @@ def run_experiment_constructive(problem: StandardProblem, problem_solver: Proble
     __process_results(problem, result_title, paths, times)
 
 
-def run_experiment_local_search(problem: StandardProblem, problem_solver: SearchProblemSolver,
-                                result_title: str = "graph", experiment_count: int = 100) -> float:
+def run_experiment_local_search(problem: StandardProblem,
+                                problem_solver: SearchProblemSolver,
+                                result_title: str = "graph",
+                                experiment_count: int = 100) -> float:
     """ Solves problem using 50 different randomly selected start nodes.
 
     :param problem: problem which contains graph nodes
@@ -87,19 +104,10 @@ def run_experiment_local_search(problem: StandardProblem, problem_solver: Search
     if problem.dimension < experiment_count:
         raise ValueError(f"problem.dimension < {experiment_count}")
 
-    # Pick different random nodes
-    random_nodes: Set[int] = set()
-    while len(random_nodes) < experiment_count:
-        random_node = random.randint(1, problem.dimension)
-
-        if random_node not in random_nodes:
-            random_nodes.add(random_node)
-
-    # Create distance matrix and solve TSP problem using every random node
     distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
     paths = []
     times = []
-    for _ in random_nodes:
+    for _ in range(experiment_count):
         time_start = time.time()
         path = problem_solver.solve(distance_matrix)
         time_end = time.time()
@@ -107,4 +115,34 @@ def run_experiment_local_search(problem: StandardProblem, problem_solver: Search
         paths.append(path)
 
     average_time = __process_results(problem, result_title, paths, times)
+    return average_time
+
+
+def run_experiment_iterative_local_search(problem: StandardProblem,
+                                          problem_solver: IteratedSearchProblemSolver,
+                                          result_title: str = "graph",
+                                          experiment_count: int = 100,
+                                          max_time: float = None) -> float:
+    """ Solves problem using 50 different randomly selected start nodes.
+
+    :param problem: problem which contains graph nodes
+    :param problem_solver: specific implementation of ProblemSolver
+    :param result_title: title which will be given to result image
+    """
+    if problem.dimension < experiment_count:
+        raise ValueError(f"problem.dimension < {experiment_count}")
+
+    distance_matrix: np.ndarray = utils.create_distance_matrix(problem)
+    paths = []
+    times = []
+    search_invocation_counts = []
+    for _ in range(experiment_count):
+        time_start = time.time()
+        path, search_invocation_count = problem_solver.solve(distance_matrix, max_time=max_time)
+        time_end = time.time()
+        times.append((time_end - time_start))
+        search_invocation_counts.append(search_invocation_count)
+        paths.append(path)
+
+    average_time = __process_results(problem, result_title, paths, times, search_invocation_counts)
     return average_time

@@ -86,8 +86,12 @@ class LocalSearchOperation(Enum):
 
 
 class CandidateSteepSearch(SearchProblemSolver):
-    def solve(self, distance_matrix: np.ndarray) -> List[int]:
-        cycle = RandomSearch(0.0).solve(distance_matrix)
+    def solve(self, distance_matrix: np.ndarray, start_cycle: List[int] = None) -> List[int]:
+        if start_cycle:
+            cycle = start_cycle
+        else:
+            cycle = RandomSearch(0.0).solve(distance_matrix)
+
         unused_nodes_list = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
 
         while True:
@@ -116,8 +120,8 @@ class CandidateSteepSearch(SearchProblemSolver):
         best_operation = None
 
         unused_nodes_index_dict = {}
-        for i in range(len(unused_nodes)):
-            unused_nodes_index_dict[unused_nodes_list[i]] = i
+        for i, node_index in enumerate(unused_nodes):
+            unused_nodes_index_dict[node_index] = i
 
         for i_1 in range(len(cycle) - 1):
             move, cost_delta = _find_best_outside_swap_candidate(distance_matrix, cycle, unused_nodes,
@@ -154,7 +158,7 @@ class ScoreSteepSearch(SearchProblemSolver):
     def __init__(self):
         self.cache = set()
 
-    def solve(self, distance_matrix: np.ndarray) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
         cycle = RandomSearch(0.0).solve(distance_matrix)
         unused_nodes_list = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
 
