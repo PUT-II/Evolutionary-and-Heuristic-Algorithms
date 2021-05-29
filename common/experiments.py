@@ -44,8 +44,8 @@ def __process_results(problem: StandardProblem,
         maximum_invocations = max(search_invocations)
         minimum_invocations = min(search_invocations)
         average_invocations = round(sum(search_invocations) / len(search_invocations), 3)
-        print(f"Search invocations (min) : {maximum_invocations}")
-        print(f"Search invocations (max) : {minimum_invocations}")
+        print(f"Search invocations (min) : {minimum_invocations}")
+        print(f"Search invocations (max) : {maximum_invocations}")
         print(f"Search invocations (avg) : {average_invocations}")
 
     print()
