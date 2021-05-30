@@ -5,7 +5,6 @@ from tsplib95.models import StandardProblem
 
 from common.experiments import run_experiment_iterative_local_search
 from solvers.hybrid_evolutionary import HybridEvolutionarySolver
-from solvers.local_search_multi import IteratedLocalSearch2a
 
 _EXPERIMENT_COUNT: int = 10
 
@@ -19,7 +18,7 @@ def main():
     run_experiment_iterative_local_search(problem_a, HybridEvolutionarySolver(), "kroa200_he", _EXPERIMENT_COUNT,
                                           20.777)
 
-    run_experiment_iterative_local_search(problem_b, IteratedLocalSearch2a(), "krob200_he", _EXPERIMENT_COUNT,
+    run_experiment_iterative_local_search(problem_b, HybridEvolutionarySolver(), "krob200_he", _EXPERIMENT_COUNT,
                                           20.205)
 
 

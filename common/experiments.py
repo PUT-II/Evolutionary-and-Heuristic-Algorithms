@@ -61,6 +61,7 @@ def run_experiment_constructive(problem: StandardProblem,
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
     :param result_title: title which will be given to result image
+    :param experiment_count: number of algorithm runs to be performed
     """
 
     if problem.dimension < experiment_count:
@@ -100,6 +101,7 @@ def run_experiment_local_search(problem: StandardProblem,
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
     :param result_title: title which will be given to result image
+    :param experiment_count: number of algorithm runs to be performed
     """
     if problem.dimension < experiment_count:
         raise ValueError(f"problem.dimension < {experiment_count}")
@@ -128,6 +130,8 @@ def run_experiment_iterative_local_search(problem: StandardProblem,
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
     :param result_title: title which will be given to result image
+    :param experiment_count: number of algorithm runs to be performed
+    :param max_time: soft max time constraint for each experiment duration
     """
     if problem.dimension < experiment_count:
         raise ValueError(f"problem.dimension < {experiment_count}")

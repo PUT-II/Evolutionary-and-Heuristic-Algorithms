@@ -9,10 +9,6 @@ from solvers.local_search import RandomSearch
 from solvers.local_search_improved import CandidateSteepSearch
 
 
-def _get_unused_nodes(distance_matrix: np.ndarray, cycle: List[int]) -> List[int]:
-    return [i for i in range(distance_matrix.shape[0]) if i not in cycle]
-
-
 class HybridEvolutionarySolver(IteratedSearchProblemSolver):
     POPULATION_SIZE = 20
 
@@ -78,16 +74,19 @@ class HybridEvolutionarySolver(IteratedSearchProblemSolver):
     def __recombine(parent_1: List[int], parent_2: List[int]) -> List[int]:
         parent_1_ = parent_1.copy()
         parent_2_ = parent_2.copy()
+
+        # Remove last element of cycles (make paths)
         del parent_1_[-1]
         del parent_2_[-1]
 
         target_length = len(parent_1_)
 
+        # Find common sub-paths in parent paths
         sub_paths = []
         sub_path = []
-        for i in range(target_length):
-            if parent_1_[i] == parent_2_[i]:
-                sub_path.append(parent_1_[i])
+        for parent_node_1, parent_node_2 in zip(parent_1_, parent_2_):
+            if parent_node_1 == parent_node_2:
+                sub_path.append(parent_node_1)
             elif sub_path:
                 sub_paths.append(sub_path)
                 sub_path = []
@@ -95,19 +94,20 @@ class HybridEvolutionarySolver(IteratedSearchProblemSolver):
         if sub_path:
             sub_paths.append(sub_path)
 
-        child_cycle = []
+        # Randomly construct child path from sub-paths
+        child_path = []
         while len(sub_paths) != 0:
             random_index = np.random.randint(0, len(sub_paths))
-            sub_path = sub_paths[random_index]
-            child_cycle += sub_path
+            child_path += sub_paths[random_index]
             del sub_paths[random_index]
 
-        for i in range(target_length):
-            if len(child_cycle) >= target_length:
+        # Fill missing nodes if nodes from parent 1
+        for parent_node in parent_1_:
+            if len(child_path) >= target_length:
                 break
 
-            parent_node = parent_1_[i]
-            if parent_node not in child_cycle:
-                child_cycle.append(parent_node)
+            if parent_node not in child_path:
+                child_path.append(parent_node)
 
-        return child_cycle + [child_cycle[0]]
+        # Create cycle from child path
+        return child_path + [child_path[0]]
