@@ -44,8 +44,8 @@ def __process_results(problem: StandardProblem,
         maximum_invocations = max(search_invocations)
         minimum_invocations = min(search_invocations)
         average_invocations = round(sum(search_invocations) / len(search_invocations), 3)
-        print(f"Search invocations (min) : {maximum_invocations}")
-        print(f"Search invocations (max) : {minimum_invocations}")
+        print(f"Search invocations (min) : {minimum_invocations}")
+        print(f"Search invocations (max) : {maximum_invocations}")
         print(f"Search invocations (avg) : {average_invocations}")
 
     print()
@@ -61,6 +61,7 @@ def run_experiment_constructive(problem: StandardProblem,
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
     :param result_title: title which will be given to result image
+    :param experiment_count: number of algorithm runs to be performed
     """
 
     if problem.dimension < experiment_count:
@@ -100,6 +101,7 @@ def run_experiment_local_search(problem: StandardProblem,
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
     :param result_title: title which will be given to result image
+    :param experiment_count: number of algorithm runs to be performed
     """
     if problem.dimension < experiment_count:
         raise ValueError(f"problem.dimension < {experiment_count}")
@@ -128,6 +130,8 @@ def run_experiment_iterative_local_search(problem: StandardProblem,
     :param problem: problem which contains graph nodes
     :param problem_solver: specific implementation of ProblemSolver
     :param result_title: title which will be given to result image
+    :param experiment_count: number of algorithm runs to be performed
+    :param max_time: soft max time constraint for each experiment duration
     """
     if problem.dimension < experiment_count:
         raise ValueError(f"problem.dimension < {experiment_count}")

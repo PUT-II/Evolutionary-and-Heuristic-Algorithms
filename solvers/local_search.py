@@ -109,7 +109,7 @@ class LocalSearchOperation(Enum):
 
 
 class RandomSearch(SearchProblemSolver):
-    def __init__(self, gen_time: float):
+    def __init__(self, gen_time: float = 0.0):
         self.gen_time = gen_time
 
     def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
