@@ -25,7 +25,7 @@ class HybridEvolutionarySolver(IteratedSearchProblemSolver):
 
         population_costs = [utils.calculate_path_length(distance_matrix, solution) for solution in population]
 
-        local_search_invocation_count = 1
+        local_search_invocation_count = 0
         time_start: float = time.time()
         duration = 0.0
         while duration < max_time:
