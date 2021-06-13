@@ -5,8 +5,8 @@ import numpy as np
 
 import common.utils as utils
 from common.interfaces import IteratedSearchProblemSolver
+from solvers.local_search import RandomSearch
 from solvers.local_search_multi import IteratedLocalSearch2
-from solvers.problem_solvers import GreedyCycleProblemSolver
 
 
 class ImprovedHybridEvolutionarySolver(IteratedSearchProblemSolver):
@@ -14,7 +14,7 @@ class ImprovedHybridEvolutionarySolver(IteratedSearchProblemSolver):
 
     def solve(self, distance_matrix: np.ndarray, max_time: float = 10.0, start_cycle=None) -> Tuple[List[int], int]:
         problem_solver = IteratedLocalSearch2()
-        random_problem_solver = GreedyCycleProblemSolver()
+        random_problem_solver = RandomSearch()
 
         # Generate random population
         population: List[List[int]] = []

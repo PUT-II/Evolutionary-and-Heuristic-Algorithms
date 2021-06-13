@@ -29,7 +29,7 @@ def node_similarity(cycle_1: np.ndarray, cycle_2: np.ndarray) -> int:
 def edge_similarity(cycle_1: np.ndarray, cycle_2: np.ndarray) -> int:
     similiarity = 0
     for i in np.arange(start=0, stop=cycle_1.shape[0] - 1):
-        for j in np.arange(start=i + 1, stop=cycle_2.shape[0] - 1):
+        for j in np.arange(start=0, stop=cycle_2.shape[0] - 1):
             if cycle_1[i:i + 1] == cycle_2[j:j + 1]:
                 similiarity += 1
     return similiarity
@@ -60,6 +60,7 @@ def global_convexity_tests(problem: StandardProblem,
         solution = pool_res.get()
         solutions.append(np.array(solution))
     pool_results.clear()
+    pool.close()
 
     solution_cost = np.array([calculate_path_length(distance_matrix, list(cycle)) for cycle in solutions])
     best_cost_index = np.argmin(solution_cost)
