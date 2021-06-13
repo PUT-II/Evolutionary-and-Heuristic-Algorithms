@@ -3,23 +3,24 @@ from typing import List, Tuple
 
 import numpy as np
 
-from common import utils
+import common.utils as utils
 from common.interfaces import IteratedSearchProblemSolver
 from solvers.local_search import RandomSearch
-from solvers.local_search_improved import CandidateSteepSearch
+from solvers.local_search_multi import IteratedLocalSearch2
 
 
-class HybridEvolutionarySolver(IteratedSearchProblemSolver):
-    POPULATION_SIZE = 20
+class ImprovedHybridEvolutionarySolver(IteratedSearchProblemSolver):
+    POPULATION_SIZE = 4
 
     def solve(self, distance_matrix: np.ndarray, max_time: float = 10.0, start_cycle=None) -> Tuple[List[int], int]:
-        problem_solver = CandidateSteepSearch()
+        problem_solver = IteratedLocalSearch2()
         random_problem_solver = RandomSearch()
 
         # Generate random population
         population: List[List[int]] = []
-        while len(population) < HybridEvolutionarySolver.POPULATION_SIZE:
+        while len(population) < self.POPULATION_SIZE:
             solution = random_problem_solver.solve(distance_matrix)
+
             if solution not in population:
                 population.append(solution)
 
@@ -29,17 +30,20 @@ class HybridEvolutionarySolver(IteratedSearchProblemSolver):
         time_start: float = time.time()
         duration = 0.0
         while duration < max_time:
+            duration = time.time() - time_start
+
             # Pick random parents
-            parent_1 = population[np.random.randint(HybridEvolutionarySolver.POPULATION_SIZE)]
+            parent_1 = population[np.random.randint(self.POPULATION_SIZE)]
             parent_2 = parent_1
             while parent_2 == parent_1:
-                parent_2 = population[np.random.randint(HybridEvolutionarySolver.POPULATION_SIZE)]
+                parent_2 = population[np.random.randint(self.POPULATION_SIZE)]
 
             # Recombine
             child = self.__recombine(parent_1, parent_2)
 
             # Improve child with local search
-            child = problem_solver.solve(distance_matrix, child)
+            # child = problem_solver.solve(distance_matrix, start_cycle=child)
+            child = problem_solver.solve(distance_matrix, 2.5, child)[0]
             local_search_invocation_count += 1
 
             # Ignore if child already in population
@@ -63,7 +67,6 @@ class HybridEvolutionarySolver(IteratedSearchProblemSolver):
             # Replace worse solution with child
             population[worst_index] = child
             population_costs[worst_index] = child_cost
-
             duration = time.time() - time_start
 
         best_index = np.argmin(population_costs)
@@ -84,7 +87,12 @@ class HybridEvolutionarySolver(IteratedSearchProblemSolver):
         # Find common sub-paths in parent paths
         sub_paths = []
         sub_path = []
-        for parent_node_1, parent_node_2 in zip(parent_1_, parent_2_):
+
+        zipped_parents = zip(parent_1_, parent_2_)
+        if np.random.random() > 0.5:
+            zipped_parents = reversed(list(zipped_parents))
+
+        for parent_node_1, parent_node_2 in zipped_parents:
             if parent_node_1 == parent_node_2:
                 sub_path.append(parent_node_1)
             elif sub_path:

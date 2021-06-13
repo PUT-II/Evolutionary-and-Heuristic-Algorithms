@@ -7,7 +7,7 @@ from common.interfaces import ProblemSolver
 
 
 class NearestNeighbourProblemSolver(ProblemSolver):
-    def solve(self, distance_matrix: np.ndarray, start_node: int = 0, _=None) -> List[int]:
+    def solve(self, distance_matrix: np.ndarray, start_node: int = 0, _=None, start_cycle=None) -> List[int]:
         shape = utils.validate_shape(distance_matrix.shape)
 
         max_distance = np.iinfo(distance_matrix.dtype).max
@@ -17,8 +17,15 @@ class NearestNeighbourProblemSolver(ProblemSolver):
 
         current_node_index = start_node
 
+        for index in range(distance_matrix.shape[0]):
+            distance_matrix_[index, index] = max_distance
+
         # Loop until path contains 50% of nodes
-        path = [start_node]
+        if not start_cycle:
+            path = [current_node_index]
+        else:
+            path = start_cycle[:-1]
+
         while len(path) < round(shape[0] / 2):
             # Get node closest to current node
             current_node_distances = distance_matrix_[current_node_index, :]
@@ -45,10 +52,8 @@ class GreedyCycleProblemSolver(ProblemSolver):
         shape = utils.validate_shape(distance_matrix.shape)
 
         # Loop until path contains 50% of nodes
-        if start_cycle:
-            path: List[int] = start_cycle[:-1]
-        else:
-            path: List[int] = [start_node, np.argmin(distance_matrix[start_node, :])]
+        path: List[int] = start_cycle[:-1] if start_cycle else [start_node, np.argmin(distance_matrix[start_node, :])]
+
         remaining_indices: List[int] = [index for index in list(range(shape[0])) if index not in path]
         while len(path) < round(shape[0] / 2):
             best_candidate_index = -1
