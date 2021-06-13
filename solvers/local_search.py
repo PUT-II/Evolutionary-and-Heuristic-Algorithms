@@ -209,7 +209,10 @@ class NodeSwapSteepSearch(SearchProblemSolver):
 
 class EdgeSwapSteepSearch(SearchProblemSolver):
     def solve(self, distance_matrix: np.ndarray, start_cycle=None) -> List[int]:
-        cycle = RandomSearch(0.0).solve(distance_matrix)
+        if start_cycle:
+            cycle = start_cycle
+        else:
+            cycle = RandomSearch(0.0).solve(distance_matrix)
         unused_nodes = [node for node in range(distance_matrix.shape[0]) if node not in cycle]
 
         while True:
@@ -300,10 +303,6 @@ class GreedyLocalSearch(SearchProblemSolver):
             elif operation == LocalSearchOperation.swap_edges:
                 cycle_copy[i_1:i_2 + 1] = reversed(cycle_copy[i_1:i_2 + 1])
 
-            cycle_length = utils.calculate_path_length(distance_matrix, cycle)
-            cycle_copy_length = utils.calculate_path_length(distance_matrix, cycle_copy)
-            if cost_delta != cycle_copy_length - cycle_length:
-                raise ArithmeticError("Incorrect cost delta")
             cycle = cycle_copy
 
         result_cycle = cycle + [cycle[0]]

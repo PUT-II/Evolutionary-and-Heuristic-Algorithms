@@ -89,7 +89,7 @@ class IteratedLocalSearch1(IteratedSearchProblemSolver):
 class IteratedLocalSearch2(IteratedSearchProblemSolver):
     def solve(self, distance_matrix: np.ndarray, max_time: float = 10.0, start_cycle=None) -> Tuple[List[int], int]:
         problem_solver = CandidateSteepSearch()
-        best_cycle: List[int] = problem_solver.solve(distance_matrix)
+        best_cycle: List[int] = problem_solver.solve(distance_matrix) if not start_cycle else start_cycle
         best_cost: int = utils.calculate_path_length(distance_matrix, best_cycle)
 
         local_search_invocation_count = 1
