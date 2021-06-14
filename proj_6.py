@@ -77,13 +77,13 @@ def global_convexity_tests(problem: StandardProblem,
         average_other_similarity[i] = np.average(similarity[mask])
         best_solution_similarity[i] = similarity_function(solutions[i], best_solution)
 
-    correlation = np.correlate(solution_cost, average_other_similarity)[0]
-    print(f"Correlation ({title}) : {correlation}")
+    correlation = np.corrcoef(solution_cost, average_other_similarity)[0][1]
+    print(f"Correlation parameter ({title}) : {correlation}")
 
     indices = np.argsort(solution_cost)
 
-    plt.plot(solution_cost[indices], average_other_similarity[indices], label="Average other similarity")
-    plt.plot(solution_cost[indices], best_solution_similarity[indices], label="Best solution similarity")
+    plt.scatter(solution_cost[indices], average_other_similarity[indices], label="Average other similarity")
+    plt.scatter(solution_cost[indices], best_solution_similarity[indices], label="Best solution similarity")
     plt.legend()
     plt.title(title)
     plt.savefig(f"./graphs/{title}.pdf")
